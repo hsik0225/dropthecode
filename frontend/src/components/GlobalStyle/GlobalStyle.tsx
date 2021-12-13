@@ -8,9 +8,6 @@ const GlobalStyle = createGlobalStyle`
 
   @font-face {
     font-family: 'IBMPlexSansKR-Regular';
-    src: url(${process.env.CDN_URL + "/IBMPlexSansKR-Regular.woff2"}) format('woff2'),
-    url(${process.env.CDN_URL + "/IBMPlexSansKR-Regular.woff"}) format('woff');
- 
     font-weight: normal;
     font-style: normal;
   }

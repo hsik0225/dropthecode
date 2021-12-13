@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "frontend part of drop the code web application",
   "main": "src/index.tsx",
+  "engines":{
+    "node":"16.x",
+    "npm":"8.x"
+  },
   "scripts": {
-    "start": "webpack serve --node-env development --config webpack.dev.ts",
-    "serve": "node dist/server/main.js",
+    "start": "node dist/server/main.js",
+    "start-dev": "webpack start --node-env production --config webpack.dev.ts",
     "build": "npm run build-client && npm run build-server",
     "build-client": "webpack --node-env production --config webpack.prod.ts",
     "build-server": "webpack --node-env production --config webpack.server.ts",
@@ -13,8 +17,8 @@
     "build-sb": "build-storybook",
     "test": "jest --watch",
     "test-all": "jest",
-    "prepare": "cd .. && husky install frontend/.husky",
-    "bundle-analyze": "npm run build-client && webpack-bundle-analyzer dist/client/stats.json"
+    "bundle-analyze": "npm run build-client && webpack-bundle-analyzer dist/client/stats.json",
+    "heroku-prebuild": "npm install"
   },
   "repository": {
     "type": "git",
