@@ -812,116 +812,96 @@ class ReviewAcceptanceTest {
 
     public static ExtractableResponse<Response> 새로운_리뷰_요청(String accessToken, ReviewRequest request) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .contentType(APPLICATION_JSON_VALUE)
                           .body(request)
                           .when()
                           .post("/reviews")
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 내가_받은_리뷰_목록_조회_요청(Long id, String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .when()
                           .get("/reviews/student/{id}", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 내가_맡은_리뷰_목록_조회_요청(Long id) {
         return RestAssured.given()
-                          .log().all()
                           .when()
                           .get("/reviews/teacher/{id}", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 리뷰_상세_조회_요청(String id) {
         return RestAssured.given()
-                          .log().all()
                           .when()
                           .get("/reviews/{id}", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 리뷰_수정_요청(String id, String accessToken, ReviewRequest request) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .contentType(APPLICATION_JSON_VALUE)
                           .body(request)
                           .when()
                           .patch("/reviews/{id}", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 리뷰_취소_요청(String id, String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .contentType(APPLICATION_JSON_VALUE)
                           .when()
                           .delete("/reviews/{id}", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 리뷰_거절_요청(String id, String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .when()
                           .patch("/reviews/{id}/deny", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 리뷰_수락_요청(String id, String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .when()
                           .patch("/reviews/{id}/accept", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 선생님_리뷰_완료_요청(String id, String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .when()
                           .patch("/reviews/{id}/complete", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 학생_리뷰_완료_요청(String id, String accessToken, FeedbackRequest request) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .contentType(APPLICATION_JSON_VALUE)
                           .body(request)
                           .when()
                           .patch("/reviews/{id}/finish", id)
                           .then()
-                          .log().all()
                           .extract();
     }
 

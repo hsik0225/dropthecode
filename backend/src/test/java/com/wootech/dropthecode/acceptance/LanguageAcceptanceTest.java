@@ -38,11 +38,9 @@ class LanguageAcceptanceTest extends AcceptanceTest {
 
     public static ExtractableResponse<Response> 리뷰_상세_조회_요청() {
         return RestAssured.given()
-                          .log().all()
                           .when()
                           .get("/languages")
                           .then()
-                          .log().all()
                           .extract();
     }
 }

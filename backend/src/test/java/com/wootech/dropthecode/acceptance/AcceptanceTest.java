@@ -76,11 +76,9 @@ class AcceptanceTest {
         fakeGithubProviderResponse(name);
 
         return RestAssured.given()
-                          .log().all()
                           .when()
                           .get("/login/oauth?providerName=github&code=authorizationCode")
                           .then()
-                          .log().all()
                           .statusCode(HttpStatus.OK.value())
                           .extract();
     }
