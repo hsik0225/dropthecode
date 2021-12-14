@@ -75,25 +75,21 @@ class NotificationAcceptanceTest extends AcceptanceTest {
 
     public static ExtractableResponse<Response> 모든_알림_조회(String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .accept(APPLICATION_JSON_VALUE)
                           .when()
                           .get("/notifications")
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public static ExtractableResponse<Response> 알림_읽기_요청(String accessToken, Long notificationId) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .accept(APPLICATION_JSON_VALUE)
                           .when()
                           .patch("/notifications/" + notificationId)
                           .then()
-                          .log().all()
                           .extract();
     }
 }

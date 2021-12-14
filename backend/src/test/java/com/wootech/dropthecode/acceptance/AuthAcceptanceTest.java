@@ -164,18 +164,15 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .when(inMemoryProviderRepository).findByProviderName("kakao");
 
         return RestAssured.given()
-                          .log().all()
                           .when()
                           .get("/login/oauth?providerName=kakao&code=authorizationCode")
                           .then()
-                          .log().all()
                           .statusCode(HttpStatus.BAD_REQUEST.value())
                           .extract();
     }
 
     public ExtractableResponse<Response> 토큰_갱신_요청(String accessToken, String refreshToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                           .urlEncodingEnabled(true)
@@ -183,13 +180,11 @@ class AuthAcceptanceTest extends AcceptanceTest {
                           .when()
                           .post("/token")
                           .then()
-                          .log().all()
                           .extract();
     }
 
     public ExtractableResponse<Response> 로그아웃_요청(String accessToken) {
         return RestAssured.given()
-                          .log().all()
                           .header("Authorization", "Bearer " + accessToken)
                           .when()
                           .post("/logout")

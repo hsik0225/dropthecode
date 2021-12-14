@@ -114,13 +114,11 @@ class FeedbackAcceptanceTest extends AcceptanceTest {
 
     public static ExtractableResponse<Response> 피드백_조회_요청(Long studentId, Long teacherId) {
         return RestAssured.given()
-                          .log().all()
                           .param("studentId", studentId)
                           .param("teacherId", teacherId)
                           .when()
                           .get("/feedbacks")
                           .then()
-                          .log().all()
                           .extract();
     }
 
