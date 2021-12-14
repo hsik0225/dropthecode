@@ -47,7 +47,6 @@ class LanguageControllerTest extends RestApiDocumentTest {
                 .perform(get("/languages")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)))
-                .andDo(print());
+                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));
     }
 }

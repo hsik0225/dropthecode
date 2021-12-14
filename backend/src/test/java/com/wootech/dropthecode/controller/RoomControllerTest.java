@@ -47,8 +47,7 @@ class RoomControllerTest extends RestApiDocumentTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(roomIdResponse)))
-                     .andDo(print());
+                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(roomIdResponse)));
     }
 
     @Test
@@ -62,7 +61,6 @@ class RoomControllerTest extends RestApiDocumentTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                     .andDo(print());
+        resultActions.andExpect(status().isBadRequest());
     }
 }

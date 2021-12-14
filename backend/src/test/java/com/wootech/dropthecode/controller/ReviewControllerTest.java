@@ -91,8 +91,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .perform(post("/reviews").contentType(MediaType.APPLICATION_JSON).content(body));
 
         // then
-        result.andExpect(status().isBadRequest())
-              .andDo(print());
+        result.andExpect(status().isBadRequest());
     }
 
     //    @DisplayName("새로운 리뷰 등록 - id(student or teacher)가 DB에 저장되어 있지 않은 경우 실패")
@@ -171,8 +170,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .perform(get("/reviews/student/{id}", 1));
 
         // then
-        result.andExpect(status().isUnauthorized())
-              .andDo(print());
+        result.andExpect(status().isUnauthorized());
     }
 
     //    @DisplayName("내가 요청한 리뷰 목록 조회 - ID에 해당하는 리소스가 없는 경우 실패")
@@ -300,8 +298,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .perform(patch("/reviews/1/complete"));
 
         // then
-        result.andExpect(status().isUnauthorized())
-              .andDo(print());
+        result.andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -349,8 +346,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .perform(patch("/reviews/1/finish"));
 
         // then
-        result.andExpect(status().isUnauthorized())
-              .andDo(print());
+        result.andExpect(status().isUnauthorized());
     }
 
 
