@@ -19,7 +19,7 @@
     <include resource="appender/sql-file-appender.xml"/>
 
     <springProfile name="test">
-        <root level="INFO">
+        <root level="WARN">
             <appender-ref ref="CONSOLE_APPENDER"/>
         </root>
     </springProfile>
