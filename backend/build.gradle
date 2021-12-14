@@ -7,10 +7,8 @@ plugins {
     id 'jacoco'
 }
 
-group = 'com.wootech'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
-targetCompatibility = '11'
+group 'com.wootech'
+version '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -109,8 +107,6 @@ test {
     useJUnitPlatform()
 
     outputs.dir snippetsDir
-
-    finalizedBy 'jacocoTestReport'
 }
 
 asciidoctor {
@@ -128,8 +124,21 @@ task copyDocument(type: Copy) {
     into file("src/main/resources/static/docs")
 }
 
+task testCoverage(type: Test) {
+    group 'verification'
+    description 'Runs the unit tests with coverage'
+
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
+
 check {
     dependsOn copyDocument
+    dependsOn testCoverage
 }
 
 jar {
@@ -154,13 +163,15 @@ clean.doLast {
 sonarqube {
     properties {
         property "sonar.projectKey", "dropthecode"
+
+        property "sonar.java.binaries", "${buildDir}/classes"
         property "sonar.sourceEncoding", "UTF-8"
         property "sonar.sources", "src/main/java"
-        property "sonar.tests", "src/test/java"
-        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.java.binaries", "${buildDir}/classes"
-        property "sonar.test.inclusions", "**/*Test.java"
         property "sonar.exclusions", "**/util/**, **/support/**, **/dto/**"
+
+        property "sonar.tests", "src/test/java"
+        property "sonar.test.inclusions", "**/*Test.java"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
 
@@ -170,9 +181,9 @@ jacoco {
 
 jacocoTestReport {
     reports {
-        html.enabled true
-        xml.enabled true
-        csv.enabled false
+        html.required = true
+        xml.required = true
+        csv.required = false
     }
 
     def QEntities = []
@@ -187,16 +198,13 @@ jacocoTestReport {
                     fileTree(dir: it,
                             excludes: [
                                     'com/wootech/dropthecode/util/**',
-                                    'com/wootech/dropthecode/controller/auth/util/**',
-                                    'com/wootech/dropthecode/repository/support/**',
-                                    'com/wootech/dropthecode/dto/**'
+                                    'com/wootech/dropthecode/dto/**',
+                                    'com/wootech/dropthecode/*Applicaiton'
                             ] + QEntities
                     )
                 })
         )
     }
-
-//    finalizedBy 'jacocoTestCoverageVerification'
 }
 
 jacocoTestCoverageVerification {
@@ -230,10 +238,9 @@ jacocoTestCoverageVerification {
             }
 
             excludes = [
-                    'com/wootech/dropthecode/util/**',
-                    'com/wootech/dropthecode/controller/auth/util/**',
-                    'com/wootech/dropthecode/repository/support/**',
-                    'com/wootech/dropthecode/dto/**'
+                    'com.wootech.dropthecode.util.*',
+                    'com.wootech.dropthecode.dto.*',
+                    'com.wootech.dropthecode.*Application',
             ] + QEntities
         }
     }
