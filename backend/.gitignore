@@ -194,4 +194,6 @@ gradle-app.setting
 **/build/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,intellij+all,java,gradle
-/src/main/resources/static/docs/api.html
+src/main/resources/static/docs/api.html
+
+src/main/generated/
