@@ -71,7 +71,6 @@ class FeedbackControllerTest extends RestApiDocumentTest {
         this.restDocsMockMvc
                 .perform(get("/feedbacks?teacherId=1&studentId=2&sort=star,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)))
-                .andDo(print());
+                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));
     }
 }

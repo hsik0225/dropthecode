@@ -61,8 +61,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(latestChatResponses)))
-                     .andDo(print());
+                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(latestChatResponses)));
     }
 
     @Test
@@ -76,8 +75,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                     .andDo(print());
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test
@@ -105,8 +103,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(chatResponses)))
-                     .andDo(print());
+                     .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(chatResponses)));
     }
 
     @Test
@@ -120,7 +117,6 @@ class ChattingControllerTest extends RestApiDocumentTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        resultActions.andExpect(status().isBadRequest())
-                     .andDo(print());
+        resultActions.andExpect(status().isBadRequest());
     }
 }

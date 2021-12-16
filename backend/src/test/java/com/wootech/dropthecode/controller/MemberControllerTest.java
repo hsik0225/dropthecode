@@ -68,16 +68,14 @@ class MemberControllerTest extends RestApiDocumentTest {
     @Test
     void deleteMemberMyselfTest() throws Exception {
         this.restDocsMockMvc.perform(delete("/members/me").with(userToken()))
-                            .andExpect(status().isNoContent())
-                            .andDo(print());
+                            .andExpect(status().isNoContent());
     }
 
     @DisplayName("멤버 삭제 테스트 - 성공")
     @Test
     void deleteMemberTest() throws Exception {
         this.restDocsMockMvc.perform(delete("/members/1"))
-                            .andExpect(status().isNoContent())
-                            .andDo(print());
+                            .andExpect(status().isNoContent());
     }
 
     @DisplayName("리뷰어 등록 테스트 - 성공")
@@ -94,8 +92,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                 .with(userToken())
                 .content(OBJECT_MAPPER.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
-                            .andExpect(status().isCreated())
-                            .andDo(print());
+                            .andExpect(status().isCreated());
     }
 
     @DisplayName("리뷰어 등록 테스트 - 필드 값이 하나라도 들어있지 않은 경우 실패")
@@ -112,8 +109,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                 .with(userToken())
                 .content(OBJECT_MAPPER.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isBadRequest())
-                                .andDo(print());
+                                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 수정 테스트 - 성공")
@@ -130,8 +126,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                 .with(userToken())
                 .content(OBJECT_MAPPER.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
-                            .andExpect(status().isNoContent())
-                            .andDo(print());
+                            .andExpect(status().isNoContent());
     }
 
     @DisplayName("리뷰어 수정 테스트 - 필드 값이 하나라도 들어있지 않은 경우 실패")
@@ -148,8 +143,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                 .with(userToken())
                 .content(OBJECT_MAPPER.writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isBadRequest())
-                                .andDo(print());
+                                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 목록 조회 테스트 - 성공")
@@ -185,8 +179,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                 .perform(get("/teachers?language=java&skills=spring&career=3&page=5&size=10&sort=career,desc")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)))
-                .andDo(print());
+                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));
     }
 
     @DisplayName("리뷰어 목록 조회 테스트 - 필수 필드 값이 없을 경우 실패")
@@ -199,8 +192,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                         .param("career", "3")
                         .param("size", "2")
                         .param("page", "1"))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 목록 조회 테스트 - DB에 없는 언어를 입력할 경우 실패")
@@ -216,8 +208,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                         .param("career", "3")
                         .param("size", "2")
                         .param("page", "1"))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 목록 조회 테스트 - 허용하지 않은 정렬 조건으로 검색할 경우 실패")
@@ -237,8 +228,7 @@ class MemberControllerTest extends RestApiDocumentTest {
                         .param("career", "3")
                         .param("size", "2")
                         .param("page", "1"))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 단일 조회 테스트 - 성공")
@@ -271,8 +261,7 @@ class MemberControllerTest extends RestApiDocumentTest {
         this.restDocsMockMvc
                 .perform(get("/teachers/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)))
-                .andDo(print());
+                .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));
     }
 
     @DisplayName("리뷰어 단일 조회 테스트 - 유효하지 않은 회원의 ID일 경우 실패")
@@ -282,15 +271,13 @@ class MemberControllerTest extends RestApiDocumentTest {
 
         this.restDocsMockMvc
                 .perform(get("/teachers/1"))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
+                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 삭제 테스트 - 성공")
     @Test
     void deleteTeacherTest() throws Exception {
         this.restDocsMockMvc.perform(delete("/teachers/me").with(userToken()))
-                            .andExpect(status().isNoContent())
-                            .andDo(print());
+                            .andExpect(status().isNoContent());
     }
 }

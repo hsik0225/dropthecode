@@ -3,6 +3,7 @@ package com.wootech.dropthecode.config;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -24,13 +25,19 @@ public class EmbeddedRedisConfig {
     @Value("${spring.redis.port}")
     private int redisPort;
 
-    private RedisServer redisServer;
+    private static RedisServer redisServer = null;
 
     @PostConstruct
     public void redisServer() throws IOException {
-        int port = isRedisRunning() ? findAvailablePort() : redisPort;
-        redisServer = new RedisServer(port);
-        redisServer.start();
+        if (Objects.isNull(redisServer)) {
+            if (isRedisRunning()) {
+                redisPort = findAvailablePort();
+            }
+
+            log.info("Embedded Redis Using Port : {}", redisPort);
+            redisServer = new RedisServer(redisPort);
+            redisServer.start();
+        }
     }
 
     @PreDestroy

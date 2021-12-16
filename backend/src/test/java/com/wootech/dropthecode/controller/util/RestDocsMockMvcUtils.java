@@ -48,8 +48,6 @@ public class RestDocsMockMvcUtils {
                     MockMvcConfig.pageableHandlerMethodArgumentResolver(),
                     MockMvcConfig.modelAttributeMethodProcessor())),
             AutoDocumentation.sectionBuilder().snippetNames(
-                    AUTO_METHOD_PATH,
-                    AUTO_DESCRIPTION,
                     AUTO_AUTHORIZATION,
                     AUTO_PATH_PARAMETERS,
                     AUTO_MODELATTRIBUTE,
