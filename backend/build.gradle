@@ -11,6 +11,7 @@ group 'com.wootech'
 version '0.0.1-SNAPSHOT'
 
 repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     mavenCentral()
 }
 
@@ -68,8 +69,8 @@ dependencies {
 
 
     // Spring Auto REST Docs
-    testImplementation 'capital.scalable:spring-auto-restdocs-core:2.0.11'
-    jsondoclet "capital.scalable:spring-auto-restdocs-json-doclet-jdk9:2.0.11"
+    testImplementation 'capital.scalable:spring-auto-restdocs-core:2.0.12-SNAPSHOT'
+    jsondoclet 'capital.scalable:spring-auto-restdocs-json-doclet-jdk9:2.0.12-SNAPSHOT'
 
     // flyway
     implementation 'org.flywaydb:flyway-core'
@@ -79,16 +80,6 @@ dependencies {
     implementation 'javax.cache:cache-api'
     implementation 'org.ehcache:ehcache'
     implementation 'org.hibernate:hibernate-jcache:5.4.32.Final'
-
-}
-
-task jsonDoclet(type: Javadoc, dependsOn: compileJava) {
-    source = sourceSets.main.allJava
-    classpath = sourceSets.main.compileClasspath
-    destinationDir = javadocJsonDir
-    options.docletpath = configurations.jsondoclet.files.asType(List)
-    options.doclet = 'capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet'
-    options.memberLevel = JavadocMemberLevel.PACKAGE
 }
 
 test {
@@ -103,7 +94,6 @@ test {
     systemProperty 'org.springframework.restdocs.outputDir', snippetsDir
     systemProperty 'org.springframework.restdocs.javadocJsonDir', javadocJsonDir
 
-    dependsOn jsonDoclet
     useJUnitPlatform()
 
     outputs.dir snippetsDir
@@ -111,34 +101,45 @@ test {
 
 asciidoctor {
     inputs.dir snippetsDir
-    dependsOn test
+
+    doFirst {
+        delete file('src/main/resources/static/docs')
+    }
 }
 
-asciidoctor.doFirst {
-    delete file('src/main/resources/static/docs')
+task jsonDoclet(type: Javadoc, dependsOn: compileTestJava) {
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = javadocJsonDir
+    options.docletpath = configurations.jsondoclet.files.asType(List)
+    options.doclet = 'capital.scalable.restdocs.jsondoclet.ExtractDocumentationAsJsonDoclet'
+    options.memberLevel = JavadocMemberLevel.PACKAGE
 }
 
 task copyDocument(type: Copy) {
-    dependsOn asciidoctor
     from file("build/docs/asciidoc")
     into file("src/main/resources/static/docs")
+}
+
+task restDocs {
+    dependsOn(jsonDoclet, test, asciidoctor, copyDocument)
+    test.mustRunAfter(jsonDoclet)
+    asciidoctor.mustRunAfter(test)
+    copyDocument.mustRunAfter(asciidoctor)
 }
 
 task testCoverage(type: Test) {
     group 'verification'
     description 'Runs the unit tests with coverage'
 
-    dependsOn(':test',
-            ':jacocoTestReport',
-            ':jacocoTestCoverageVerification')
-
-    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
-    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+    dependsOn(test, jacocoTestReport, jacocoTestCoverageVerification)
+    jacocoTestReport.mustRunAfter(test)
+    jacocoTestCoverageVerification.mustRunAfter(jacocoTestReport)
 }
 
 check {
-    dependsOn copyDocument
-    dependsOn testCoverage
+    dependsOn(testCoverage, restDocs)
+    restDocs.mustRunAfter(testCoverage)
 }
 
 jar {
@@ -216,7 +217,7 @@ jacocoTestCoverageVerification {
 
     violationRules {
         rule {
-            enabled = true
+            enabled = false
             element = 'CLASS'
 
             limit {
@@ -228,13 +229,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
-            }
-
-            limit {
-                counter = 'LINE'
-                value = 'TOTALCOUNT'
-                maximum = 300
+                minimum = 0.50
             }
 
             excludes = [
