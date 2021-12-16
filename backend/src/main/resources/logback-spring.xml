@@ -14,9 +14,6 @@
               value="[Occurred Time] - [%d{yyyy-MM-dd HH:mm:ss}] [%-5p] [%-40.40logger{0}] - %m%n"/>
 
     <include resource="appender/all-console-appender.xml"/>
-    <include resource="appender/info-file-appender.xml"/>
-    <include resource="appender/error-file-appender.xml"/>
-    <include resource="appender/sql-file-appender.xml"/>
 
     <springProfile name="test">
         <root level="WARN">
@@ -31,6 +28,10 @@
     </springProfile>
 
     <springProfile name="prod, dev">
+        <include resource="appender/info-file-appender.xml"/>
+        <include resource="appender/error-file-appender.xml"/>
+        <include resource="appender/sql-file-appender.xml"/>
+
         <logger name="com.wootech.dropthecode.repository.replication.ReplicationRoutingDataSource" level="DEBUG">
             <appender-ref ref="SQL_FILE"/>
         </logger>
