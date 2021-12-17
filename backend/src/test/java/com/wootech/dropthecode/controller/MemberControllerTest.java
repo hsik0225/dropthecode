@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.domain.Role;
 import com.wootech.dropthecode.domain.TeacherProfile;
 import com.wootech.dropthecode.dto.TechSpec;
@@ -19,31 +18,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.ResultActions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-class MemberControllerTest extends RestApiDocumentTest {
+class MemberControllerTest extends ControllerTest {
 
     @Autowired
     private MemberController memberController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, memberController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, memberController);
-    }
 
     @DisplayName("로그인 한 유저 정보 조회")
     @Test
@@ -53,7 +43,7 @@ class MemberControllerTest extends RestApiDocumentTest {
         given(memberService.findByLoginMember(any())).willReturn(memberResponse);
 
         // when
-        ResultActions resultActions = this.restDocsMockMvc.perform(get("/members/me").with(userToken()));
+        ResultActions resultActions = this.successMockMvc.perform(get("/members/me").with(successMockMvc.userToken()));
 
         // then
         resultActions.andExpect(status().isOk())
@@ -67,15 +57,15 @@ class MemberControllerTest extends RestApiDocumentTest {
     @DisplayName("멤버 본인 삭제 테스트 - 성공")
     @Test
     void deleteMemberMyselfTest() throws Exception {
-        this.restDocsMockMvc.perform(delete("/members/me").with(userToken()))
-                            .andExpect(status().isNoContent());
+        this.successMockMvc.perform(delete("/members/me").with(successMockMvc.userToken()))
+                           .andExpect(status().isNoContent());
     }
 
     @DisplayName("멤버 삭제 테스트 - 성공")
     @Test
     void deleteMemberTest() throws Exception {
-        this.restDocsMockMvc.perform(delete("/members/1"))
-                            .andExpect(status().isNoContent());
+        this.successMockMvc.perform(delete("/members/1"))
+                           .andExpect(status().isNoContent());
     }
 
     @DisplayName("리뷰어 등록 테스트 - 성공")
@@ -88,11 +78,11 @@ class MemberControllerTest extends RestApiDocumentTest {
         TeacherRegistrationRequest request
                 = new TeacherRegistrationRequest("백엔드 개발자입니다.", "환영합니다.", 3, techSpecs);
 
-        this.restDocsMockMvc.perform(post("/teachers")
-                .with(userToken())
-                .content(OBJECT_MAPPER.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-                            .andExpect(status().isCreated());
+        this.successMockMvc.perform(post("/teachers")
+                    .with(successMockMvc.userToken())
+                    .content(OBJECT_MAPPER.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                           .andExpect(status().isCreated());
     }
 
     @DisplayName("리뷰어 등록 테스트 - 필드 값이 하나라도 들어있지 않은 경우 실패")
@@ -105,11 +95,11 @@ class MemberControllerTest extends RestApiDocumentTest {
         TeacherRegistrationRequest request =
                 new TeacherRegistrationRequest("백엔드 개발자입니다.", "환영합니다.", null, techSpecs);
 
-        this.failRestDocsMockMvc.perform(post("/teachers")
-                .with(userToken())
-                .content(OBJECT_MAPPER.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isBadRequest());
+        this.failMockMvc.perform(post("/teachers")
+                    .with(failMockMvc.userToken())
+                    .content(OBJECT_MAPPER.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 수정 테스트 - 성공")
@@ -122,11 +112,11 @@ class MemberControllerTest extends RestApiDocumentTest {
         TeacherRegistrationRequest request
                 = new TeacherRegistrationRequest("백엔드 개발자입니다.", "환영합니다.", 3, techSpecs);
 
-        this.restDocsMockMvc.perform(put("/teachers/me")
-                .with(userToken())
-                .content(OBJECT_MAPPER.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-                            .andExpect(status().isNoContent());
+        this.successMockMvc.perform(put("/teachers/me")
+                    .with(successMockMvc.userToken())
+                    .content(OBJECT_MAPPER.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                           .andExpect(status().isNoContent());
     }
 
     @DisplayName("리뷰어 수정 테스트 - 필드 값이 하나라도 들어있지 않은 경우 실패")
@@ -139,11 +129,11 @@ class MemberControllerTest extends RestApiDocumentTest {
         TeacherRegistrationRequest request =
                 new TeacherRegistrationRequest("백엔드 개발자입니다.", "환영합니다.", null, techSpecs);
 
-        this.failRestDocsMockMvc.perform(put("/teachers/me")
-                .with(userToken())
-                .content(OBJECT_MAPPER.writeValueAsString(request))
-                .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isBadRequest());
+        this.failMockMvc.perform(put("/teachers/me")
+                    .with(failMockMvc.userToken())
+                    .content(OBJECT_MAPPER.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isBadRequest());
     }
 
     @DisplayName("리뷰어 목록 조회 테스트 - 성공")
@@ -175,7 +165,7 @@ class MemberControllerTest extends RestApiDocumentTest {
         );
 
         given(teacherService.findAll(isA(TeacherFilterRequest.class), isA(Pageable.class))).willReturn(response);
-        this.restDocsMockMvc
+        this.successMockMvc
                 .perform(get("/teachers?language=java&skills=spring&career=3&page=5&size=10&sort=career,desc")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -185,7 +175,7 @@ class MemberControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰어 목록 조회 테스트 - 필수 필드 값이 없을 경우 실패")
     @Test
     void findAllTeacherFailTest() throws Exception {
-        this.failRestDocsMockMvc
+        this.failMockMvc
                 .perform(get("/teachers")
                         .param("language", "")
                         .param("skills", "spring")
@@ -201,7 +191,7 @@ class MemberControllerTest extends RestApiDocumentTest {
 
         given(teacherService.findAll(isA(TeacherFilterRequest.class), isA(Pageable.class))).willThrow(new TeacherException("존재하지 않는 언어입니다."));
 
-        this.failRestDocsMockMvc
+        this.failMockMvc
                 .perform(get("/teachers")
                         .param("language", "golang")
                         .param("skills", "spring")
@@ -221,7 +211,7 @@ class MemberControllerTest extends RestApiDocumentTest {
         given(teacherService.findAll(isA(TeacherFilterRequest.class), isA(Pageable.class)))
                 .willThrow(new PropertyReferenceException(sort, type, new Stack<>()));
 
-        this.failRestDocsMockMvc
+        this.failMockMvc
                 .perform(get("/teachers")
                         .param("language", "golang")
                         .param("skills", "spring")
@@ -258,7 +248,7 @@ class MemberControllerTest extends RestApiDocumentTest {
 
         given(teacherService.findTeacherResponseById(1L)).willReturn(response);
 
-        this.restDocsMockMvc
+        this.successMockMvc
                 .perform(get("/teachers/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));
@@ -269,7 +259,7 @@ class MemberControllerTest extends RestApiDocumentTest {
     void findTeacherFailIfIdIsInvalidTest() throws Exception {
         given(teacherService.findTeacherResponseById(1L)).willThrow(new TeacherException("존재하지 않는 리뷰어의 ID 입니다."));
 
-        this.restDocsMockMvc
+        this.successMockMvc
                 .perform(get("/teachers/1"))
                 .andExpect(status().isBadRequest());
     }
@@ -277,7 +267,7 @@ class MemberControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰어 삭제 테스트 - 성공")
     @Test
     void deleteTeacherTest() throws Exception {
-        this.restDocsMockMvc.perform(delete("/teachers/me").with(userToken()))
-                            .andExpect(status().isNoContent());
+        this.successMockMvc.perform(delete("/teachers/me").with(successMockMvc.userToken()))
+                           .andExpect(status().isNoContent());
     }
 }

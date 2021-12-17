@@ -5,20 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.dto.response.ChatResponse;
 import com.wootech.dropthecode.dto.response.LatestChatResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.ResultActions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,16 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-class ChattingControllerTest extends RestApiDocumentTest {
+class ChattingControllerTest extends ControllerTest {
 
     @Autowired
     ChattingController chattingController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, chattingController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, chattingController);
-    }
 
     @Test
     @DisplayName("유저의 최근 메시지들을 가져온다. - 성공")
@@ -55,7 +46,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
         given(chattingService.findAllLatestChats(isA(Long.class))).willReturn(latestChatResponses);
 
         // when
-        ResultActions resultActions = this.restDocsMockMvc.perform(get("/messages/1")
+        ResultActions resultActions = this.successMockMvc.perform(get("/messages/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
 
@@ -71,7 +62,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
         given(chattingService.findAllLatestChats(isA(Long.class))).willThrow(new EntityNotFoundException("존재하지 않는 멤버입니다."));
 
         // when
-        ResultActions resultActions = this.failRestDocsMockMvc.perform(get("/messages/1")
+        ResultActions resultActions = this.failMockMvc.perform(get("/messages/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -97,7 +88,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
         given(chattingService.findAllChats(isA(Long.class))).willReturn(chatResponses);
 
         // when
-        ResultActions resultActions = this.restDocsMockMvc.perform(get("/messages?roomId=1")
+        ResultActions resultActions = this.successMockMvc.perform(get("/messages?roomId=1")
                 .contentType(MediaType.APPLICATION_JSON));
 
 
@@ -113,7 +104,7 @@ class ChattingControllerTest extends RestApiDocumentTest {
         given(chattingService.findAllChats(isA(Long.class))).willThrow(new EntityNotFoundException("존재하지 않는 방입니다."));
 
         // when
-        ResultActions resultActions = this.failRestDocsMockMvc.perform(get("/messages?roomId=1")
+        ResultActions resultActions = this.failMockMvc.perform(get("/messages?roomId=1")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
