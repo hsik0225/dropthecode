@@ -1,4 +1,4 @@
-package com.wootech.dropthecode;
+package com.wootech.dropthecode.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wootech.dropthecode.service.*;
@@ -6,9 +6,7 @@ import com.wootech.dropthecode.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class ControllerTest {
 

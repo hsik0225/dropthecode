@@ -1,7 +1,5 @@
 package com.wootech.dropthecode.controller;
 
-import com.wootech.dropthecode.ControllerTest;
-
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
