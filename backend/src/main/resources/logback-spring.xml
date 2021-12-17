@@ -15,12 +15,6 @@
 
     <include resource="appender/all-console-appender.xml"/>
 
-    <springProfile name="test">
-        <root level="WARN">
-            <appender-ref ref="CONSOLE_APPENDER"/>
-        </root>
-    </springProfile>
-
     <springProfile name="local, pt-init">
         <root level="INFO">
             <appender-ref ref="CONSOLE_APPENDER"/>

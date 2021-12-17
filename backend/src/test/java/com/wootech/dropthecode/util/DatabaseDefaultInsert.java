@@ -15,11 +15,9 @@ import com.wootech.dropthecode.repository.bridge.LanguageSkillRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@ActiveProfiles("test")
 public class DatabaseDefaultInsert {
 
     @Autowired

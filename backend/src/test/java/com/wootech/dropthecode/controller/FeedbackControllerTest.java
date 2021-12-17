@@ -2,7 +2,6 @@ package com.wootech.dropthecode.controller;
 
 import java.util.Arrays;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.dto.request.FeedbackSearchCondition;
 import com.wootech.dropthecode.dto.response.FeedbackPaginationResponse;
 import com.wootech.dropthecode.dto.response.FeedbackResponse;
@@ -10,13 +9,11 @@ import com.wootech.dropthecode.dto.response.ProfileResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -24,16 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class FeedbackControllerTest extends RestApiDocumentTest {
+class FeedbackControllerTest extends ControllerTest {
 
     @Autowired
     FeedbackController feedbackController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, feedbackController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, feedbackController);
-    }
 
     @DisplayName("피드백 목록 조회 테스트 - 성공")
     @Test
@@ -68,7 +59,7 @@ class FeedbackControllerTest extends RestApiDocumentTest {
         );
         given(feedbackService.findAll(isA(FeedbackSearchCondition.class), isA(Pageable.class))).willReturn(response);
 
-        this.restDocsMockMvc
+        this.successMockMvc
                 .perform(get("/feedbacks?teacherId=1&studentId=2&sort=star,desc"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(OBJECT_MAPPER.writeValueAsString(response)));

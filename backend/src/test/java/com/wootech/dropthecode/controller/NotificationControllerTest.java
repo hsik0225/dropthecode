@@ -4,17 +4,14 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.dto.response.NotificationResponse;
 import com.wootech.dropthecode.dto.response.NotificationsResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -25,16 +22,10 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class NotificationControllerTest extends RestApiDocumentTest {
+class NotificationControllerTest extends ControllerTest {
 
     @Autowired
     private NotificationController notificationController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, notificationController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, notificationController);
-    }
 
     @Test
     @DisplayName("sse 연결")
@@ -43,9 +34,9 @@ class NotificationControllerTest extends RestApiDocumentTest {
         given(notificationService.subscribe(any(), anyString())).willReturn(new SseEmitter());
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(
+        ResultActions result = this.successMockMvc.perform(
                 get("/subscribe")
-                        .with(userToken())
+                        .with(successMockMvc.userToken())
                         .accept(MediaType.TEXT_EVENT_STREAM_VALUE)
                         .header("Last-Event-ID", "1_1631593143664"));
 
@@ -84,9 +75,9 @@ class NotificationControllerTest extends RestApiDocumentTest {
         given(notificationService.findAllById(any())).willReturn(notificationsResponse);
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(
+        ResultActions result = this.successMockMvc.perform(
                 get("/notifications")
-                        .with(userToken()));
+                        .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isOk());
@@ -97,9 +88,9 @@ class NotificationControllerTest extends RestApiDocumentTest {
     void readNotification() throws Exception {
         //given
         // when
-        ResultActions result = this.restDocsMockMvc.perform(
+        ResultActions result = this.successMockMvc.perform(
                 patch("/notifications/{id}", 1)
-                        .with(userToken()));
+                        .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());

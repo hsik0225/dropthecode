@@ -2,37 +2,27 @@ package com.wootech.dropthecode.controller;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.dto.request.RoomRequest;
 import com.wootech.dropthecode.dto.response.RoomIdResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.ResultActions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class RoomControllerTest extends RestApiDocumentTest {
+class RoomControllerTest extends ControllerTest {
 
     @Autowired
     RoomController roomController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, roomController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, roomController);
-    }
 
     @Test
     @DisplayName("채팅방 id를 받아온다. - 성공")
@@ -42,7 +32,7 @@ class RoomControllerTest extends RestApiDocumentTest {
         given(roomService.getOrCreate(isA(RoomRequest.class))).willReturn(roomIdResponse);
 
         // when
-        ResultActions resultActions = this.restDocsMockMvc.perform(get("/rooms?studentId=1&teacherId=2")
+        ResultActions resultActions = this.successMockMvc.perform(get("/rooms?studentId=1&teacherId=2")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -57,7 +47,7 @@ class RoomControllerTest extends RestApiDocumentTest {
         given(roomService.getOrCreate(isA(RoomRequest.class))).willThrow(new EntityNotFoundException("존재하지 않는 멤버입니다."));
 
         // when
-        ResultActions resultActions = this.failRestDocsMockMvc.perform(get("/rooms?studentId=1&teacherId=2")
+        ResultActions resultActions = this.failMockMvc.perform(get("/rooms?studentId=1&teacherId=2")
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then

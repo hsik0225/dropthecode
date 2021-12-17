@@ -2,20 +2,17 @@ package com.wootech.dropthecode.controller;
 
 import java.util.List;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.dto.response.LanguageResponse;
 import com.wootech.dropthecode.dto.response.LanguageSkillsResponse;
 import com.wootech.dropthecode.dto.response.SkillResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
 import static java.util.Arrays.asList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -23,16 +20,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class LanguageControllerTest extends RestApiDocumentTest {
+class LanguageControllerTest extends ControllerTest {
 
     @Autowired
     private LanguageController languageController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, languageController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, languageController);
-    }
 
     @Test
     @DisplayName("언어/기술 스택 목록 조회 - 성공")
@@ -43,7 +34,7 @@ class LanguageControllerTest extends RestApiDocumentTest {
         );
 
         given(languageService.findAll()).willReturn(response);
-        this.restDocsMockMvc
+        this.successMockMvc
                 .perform(get("/languages")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

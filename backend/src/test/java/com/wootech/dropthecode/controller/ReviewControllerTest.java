@@ -4,9 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.wootech.dropthecode.controller.auth.AuthenticationInterceptor;
-import com.wootech.dropthecode.controller.auth.GetAuthenticationInterceptor;
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.domain.Progress;
 import com.wootech.dropthecode.dto.request.FeedbackRequest;
 import com.wootech.dropthecode.dto.request.ReviewRequest;
@@ -15,62 +12,41 @@ import com.wootech.dropthecode.dto.response.ReviewResponse;
 import com.wootech.dropthecode.dto.response.ReviewsResponse;
 import com.wootech.dropthecode.exception.AuthenticationException;
 import com.wootech.dropthecode.exception.AuthorizationException;
-import com.wootech.dropthecode.exception.GlobalExceptionHandler;
 import com.wootech.dropthecode.exception.ReviewException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.restdocs.http.HttpDocumentation;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static capital.scalable.restdocs.jackson.JacksonResultHandlers.prepareJackson;
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.OBJECT_MAPPER;
-import static com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils.restDocumentation;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static com.wootech.dropthecode.controller.mockmvc.RestDocsMockMvcFactory.OBJECT_MAPPER;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ReviewControllerTest extends RestApiDocumentTest {
-
-    @Autowired
-    private ReviewController reviewController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, reviewController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, reviewController);
-    }
+class ReviewControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("새로운 리뷰 등록")
     void newReview() throws Exception {
+
         // given
         ReviewRequest reviewRequest = new ReviewRequest(1L, 2L, "title1", "content1", "https://github.com/KJunseo");
         String body = objectMapper.writeValueAsString(reviewRequest);
         given(reviewService.create(any(), any())).willReturn(1L);
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(
+        ResultActions result = this.successMockMvc.perform(
                 post("/reviews")
-                        .with(userToken())
+                        .with(successMockMvc.userToken())
                         .content(body)
                         .contentType(MediaType.APPLICATION_JSON));
 
@@ -87,7 +63,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 new ReviewRequest(null, null, " ", "content1", "https://github.com/KJunseo"));
 
         // when
-        final ResultActions result = this.failRestDocsMockMvc
+        final ResultActions result = this.failMockMvc
                 .perform(post("/reviews").contentType(MediaType.APPLICATION_JSON).content(body));
 
         // then
@@ -133,9 +109,9 @@ class ReviewControllerTest extends RestApiDocumentTest {
         given(reviewService.findStudentReview(any(), anyLong(), any(), any())).willReturn(new ReviewsResponse(data, 2));
 
         // when
-        ResultActions result = restDocsMockMvc.perform(
+        ResultActions result = successMockMvc.perform(
                 get("/reviews/student/2")
-                        .with(userToken()));
+                        .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isOk());
@@ -143,31 +119,13 @@ class ReviewControllerTest extends RestApiDocumentTest {
 
     @DisplayName("내가 요청한 리뷰 목록 조회 - Authorization Header 가 없을 경우 실패")
     @Test
-    void studentReviewsFailIfAuthorizationHeaderNotExists(RestDocumentationContextProvider provider) throws Exception {
+    void studentReviewsFailIfAuthorizationHeaderNotExists() throws Exception {
         // given
         doThrow(new AuthenticationException("access token이 유효하지 않습니다."))
                 .when(authService).validatesAccessToken(any());
-        this.failRestDocsMockMvc = MockMvcBuilders.standaloneSetup(reviewController)
-                                                  .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                                                  .addInterceptors(new GetAuthenticationInterceptor(authService))
-                                                  .setControllerAdvice(new GlobalExceptionHandler())
-                                                  .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                                                  .alwaysDo(prepareJackson(OBJECT_MAPPER))
-                                                  .alwaysDo(restDocumentation())
-                                                  .apply(documentationConfiguration(provider)
-                                                          .uris()
-                                                          .withScheme("http")
-                                                          .withHost("localhost")
-                                                          .withPort(8080)
-                                                          .and()
-                                                          .snippets()
-                                                          .withDefaults(
-                                                                  HttpDocumentation.httpResponse()
-                                                          ))
-                                                  .build();
+
         // when
-        final ResultActions result = this.failRestDocsMockMvc
-                .perform(get("/reviews/student/{id}", 1));
+        final ResultActions result = this.failMockMvc.perform(get("/reviews/student/{id}", 1));
 
         // then
         result.andExpect(status().isUnauthorized());
@@ -207,7 +165,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
         given(reviewService.findTeacherReview(anyLong(), any(), any())).willReturn(new ReviewsResponse(data, 2));
 
         // when
-        ResultActions result = restDocsMockMvc.perform(
+        ResultActions result = successMockMvc.perform(
                 get("/reviews/teacher/1"));
 
         // then
@@ -228,7 +186,7 @@ class ReviewControllerTest extends RestApiDocumentTest {
         given(reviewService.findReviewSummaryById(1L)).willReturn(review);
 
         // when
-        ResultActions result = restDocsMockMvc.perform(
+        ResultActions result = successMockMvc.perform(
                 get("/reviews/{id}", 1));
 
         // then
@@ -239,8 +197,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰 상태 변경 (PENDING -> DENIED)")
     void denyReview() throws Exception {
         // when
-        ResultActions result = restDocsMockMvc.perform(patch("/reviews/1/deny")
-                .with(userToken()));
+        ResultActions result = successMockMvc.perform(patch("/reviews/1/deny")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());
@@ -250,8 +208,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰 상태 변경 (PENDING -> ON_GOING)")
     void acceptReview() throws Exception {
         // when
-        ResultActions result = restDocsMockMvc.perform(patch("/reviews/1/accept")
-                .with(userToken()));
+        ResultActions result = successMockMvc.perform(patch("/reviews/1/accept")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());
@@ -261,8 +219,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰 상태 변경 (ON_GOING -> TEACHER_COMPLETE)")
     void updateReviewToComplete() throws Exception {
         // when
-        ResultActions result = restDocsMockMvc.perform(patch("/reviews/1/complete")
-                .with(userToken()));
+        ResultActions result = successMockMvc.perform(patch("/reviews/1/complete")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());
@@ -270,31 +228,13 @@ class ReviewControllerTest extends RestApiDocumentTest {
 
     @DisplayName("리뷰 상태 변경 (ON_GOING -> TEACHER_COMPLETE) - Authorization Header 가 없을 경우 실패")
     @Test
-    void updateReviewToCompleteFailIfAuthorizationHeaderNotExists(RestDocumentationContextProvider provider) throws Exception {
+    void updateReviewToCompleteFailIfAuthorizationHeaderNotExists() throws Exception {
         // given
         doThrow(new AuthenticationException("access token이 유효하지 않습니다."))
                 .when(authService).validatesAccessToken(any());
-        this.failRestDocsMockMvc = MockMvcBuilders.standaloneSetup(reviewController)
-                                                  .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                                                  .addInterceptors(new AuthenticationInterceptor(authService))
-                                                  .setControllerAdvice(new GlobalExceptionHandler())
-                                                  .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                                                  .alwaysDo(prepareJackson(OBJECT_MAPPER))
-                                                  .alwaysDo(restDocumentation())
-                                                  .apply(documentationConfiguration(provider)
-                                                          .uris()
-                                                          .withScheme("http")
-                                                          .withHost("localhost")
-                                                          .withPort(8080)
-                                                          .and()
-                                                          .snippets()
-                                                          .withDefaults(
-                                                                  HttpDocumentation.httpResponse()
-                                                          ))
-                                                  .build();
 
         // when
-        final ResultActions result = this.failRestDocsMockMvc
+        final ResultActions result = this.failMockMvc
                 .perform(patch("/reviews/1/complete"));
 
         // then
@@ -306,9 +246,9 @@ class ReviewControllerTest extends RestApiDocumentTest {
     void updateReviewToFinish() throws Exception {
         FeedbackRequest feedbackRequest = new FeedbackRequest(5, "good");
         // when
-        ResultActions result = restDocsMockMvc.perform(
+        ResultActions result = successMockMvc.perform(
                 patch("/reviews/1/finish")
-                        .with(userToken())
+                        .with(successMockMvc.userToken())
                         .content(OBJECT_MAPPER.writeValueAsString(feedbackRequest))
                         .contentType(MediaType.APPLICATION_JSON));
 
@@ -318,31 +258,13 @@ class ReviewControllerTest extends RestApiDocumentTest {
 
     @DisplayName("리뷰 상태 변경 (TEACHER_COMPLETE -> FINISHED) - Authorization Header 가 없을 경우 실패")
     @Test
-    void updateReviewToFinishFailIfAuthorizationHeaderNotExists(RestDocumentationContextProvider provider) throws Exception {
+    void updateReviewToFinishFailIfAuthorizationHeaderNotExists() throws Exception {
         // given
         doThrow(new AuthenticationException("access token이 유효하지 않습니다."))
                 .when(authService).validatesAccessToken(any());
-        this.failRestDocsMockMvc = MockMvcBuilders.standaloneSetup(reviewController)
-                                                  .addFilters(new CharacterEncodingFilter("UTF-8", true))
-                                                  .addInterceptors(new AuthenticationInterceptor(authService))
-                                                  .setControllerAdvice(new GlobalExceptionHandler())
-                                                  .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                                                  .alwaysDo(prepareJackson(OBJECT_MAPPER))
-                                                  .alwaysDo(restDocumentation())
-                                                  .apply(documentationConfiguration(provider)
-                                                          .uris()
-                                                          .withScheme("http")
-                                                          .withHost("localhost")
-                                                          .withPort(8080)
-                                                          .and()
-                                                          .snippets()
-                                                          .withDefaults(
-                                                                  HttpDocumentation.httpResponse()
-                                                          ))
-                                                  .build();
 
         // when
-        final ResultActions result = this.failRestDocsMockMvc
+        final ResultActions result = this.failMockMvc
                 .perform(patch("/reviews/1/finish"));
 
         // then
@@ -359,8 +281,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
         doNothing().when(reviewService).updateReview(any(), anyLong(), any());
 
         // when
-        ResultActions result = restDocsMockMvc.perform(patch("/reviews/1")
-                .with(userToken())
+        ResultActions result = successMockMvc.perform(patch("/reviews/1")
+                .with(successMockMvc.userToken())
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -378,8 +300,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .when(reviewService).updateReview(any(), anyLong(), any());
 
         // when
-        ResultActions result = failRestDocsMockMvc.perform(patch("/reviews/1")
-                .with(userToken())
+        ResultActions result = failMockMvc.perform(patch("/reviews/1")
+                .with(failMockMvc.userToken())
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -391,8 +313,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
     @DisplayName("리뷰 요청 취소 - Pending")
     void cancelReview() throws Exception {
         // when
-        ResultActions result = restDocsMockMvc.perform(delete("/reviews/1")
-                .with(userToken()));
+        ResultActions result = successMockMvc.perform(delete("/reviews/1")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());
@@ -406,8 +328,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .when(reviewService).cancelRequest(any(), anyLong());
 
         // when
-        ResultActions result = failRestDocsMockMvc.perform(delete("/reviews/1")
-                .with(userToken()));
+        ResultActions result = failMockMvc.perform(delete("/reviews/1")
+                .with(failMockMvc.userToken()));
 
         // then
         result.andExpect(status().isBadRequest());
@@ -421,8 +343,8 @@ class ReviewControllerTest extends RestApiDocumentTest {
                 .when(reviewService).cancelRequest(any(), anyLong());
 
         // when
-        ResultActions result = failRestDocsMockMvc.perform(delete("/reviews/1")
-                .with(userToken()));
+        ResultActions result = failMockMvc.perform(delete("/reviews/1")
+                .with(failMockMvc.userToken()));
 
         // then
         result.andExpect(status().isForbidden());

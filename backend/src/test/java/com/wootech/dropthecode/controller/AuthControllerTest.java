@@ -1,20 +1,14 @@
 package com.wootech.dropthecode.controller;
 
-import com.wootech.dropthecode.controller.util.RestDocsMockMvcUtils;
 import com.wootech.dropthecode.domain.Role;
 import com.wootech.dropthecode.dto.response.AccessTokenResponse;
 import com.wootech.dropthecode.dto.response.LoginResponse;
 import com.wootech.dropthecode.exception.AuthenticationException;
-import com.wootech.dropthecode.exception.AuthorizationException;
 import com.wootech.dropthecode.exception.OauthTokenRequestException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.socket.server.HandshakeFailureException;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,16 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AuthControllerTest extends RestApiDocumentTest {
-
-    @Autowired
-    private AuthController authController;
-
-    @BeforeEach
-    void setUp(RestDocumentationContextProvider provider) {
-        this.restDocsMockMvc = RestDocsMockMvcUtils.successRestDocsMockMvc(provider, authController);
-        this.failRestDocsMockMvc = RestDocsMockMvcUtils.failRestDocsMockMvc(provider, authController);
-    }
+class AuthControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("github 아이디로 로그인")
@@ -49,7 +34,7 @@ class AuthControllerTest extends RestApiDocumentTest {
         given(oauthService.login(any())).willReturn(loginResponse);
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(
+        ResultActions result = this.successMockMvc.perform(
                 get("/login/oauth?providerName=" + GITHUB + "&code=" + CODE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON));
@@ -74,7 +59,7 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .when(oauthService).login(any());
 
         //when
-        ResultActions resultAction = this.failRestDocsMockMvc.perform(
+        ResultActions resultAction = this.failMockMvc.perform(
                 get("/login/oauth?providerName=" + "invalid" + "&code=" + CODE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +79,7 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .when(oauthService).login(any());
 
         //when
-        ResultActions resultAction = this.failRestDocsMockMvc.perform(
+        ResultActions resultAction = this.failMockMvc.perform(
                 get("/login/oauth?providerName=" + GITHUB + "&code=" + "invalid")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +100,7 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .when(oauthService).login(any());
 
         //when
-        ResultActions resultAction = this.failRestDocsMockMvc.perform(
+        ResultActions resultAction = this.failMockMvc.perform(
                 get("/login/oauth?providerName=" + GITHUB + "&code=" + CODE)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -136,9 +121,9 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .willReturn(new AccessTokenResponse(NEW_ACCESS_TOKEN));
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(post("/token")
+        ResultActions result = this.successMockMvc.perform(post("/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .with(userToken())
+                .with(successMockMvc.userToken())
                 .param("refreshToken", REFRESH_TOKEN));
 
         // then
@@ -154,9 +139,9 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .when(authService).refreshAccessToken(anyString(), any());
 
         // when
-        ResultActions result = this.failRestDocsMockMvc.perform(post("/token")
+        ResultActions result = this.failMockMvc.perform(post("/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .with(userToken())
+                .with(failMockMvc.userToken())
                 .param("refreshToken", REFRESH_TOKEN));
 
         // then
@@ -170,8 +155,8 @@ class AuthControllerTest extends RestApiDocumentTest {
         doNothing().when(authService).logout(ACCESS_TOKEN);
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(post("/logout")
-                .with(userToken()));
+        ResultActions result = this.successMockMvc.perform(post("/logout")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isNoContent());
@@ -184,8 +169,8 @@ class AuthControllerTest extends RestApiDocumentTest {
         given(authService.createChattingToken(anyString())).willReturn(new AccessTokenResponse(CHATTING_TOKEN));
 
         // when
-        ResultActions result = this.restDocsMockMvc.perform(get("/token/chatting")
-                .with(userToken()));
+        ResultActions result = this.successMockMvc.perform(get("/token/chatting")
+                .with(successMockMvc.userToken()));
 
         // then
         result.andExpect(status().isOk());
@@ -199,8 +184,8 @@ class AuthControllerTest extends RestApiDocumentTest {
                 .when(authService).createChattingToken(anyString());
 
         // when
-        ResultActions result = this.failRestDocsMockMvc.perform(get("/token/chatting")
-                .with(userToken()));
+        ResultActions result = this.failMockMvc.perform(get("/token/chatting")
+                .with(failMockMvc.userToken()));
 
         // then
         result.andExpect(status().isUnauthorized());
