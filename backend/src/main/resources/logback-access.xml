@@ -12,7 +12,9 @@
     <!--    Local    -->
     <springProfile name="local">
         <include resource="appender/all-console-appender.xml"/>
-        <appender-ref ref="CONSOLE_APPENDER"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_APPENDER"/>
+        </root>
     </springProfile>
 
     <!--    Production    -->
